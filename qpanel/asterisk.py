@@ -31,6 +31,7 @@ class AsteriskAMI:
         self.user = user
         self.is_connected = False
         self.connection = self.connect_ami()
+        self.core_channels = None
 
     def connect_ami(self):
         try:
@@ -142,3 +143,47 @@ class AsteriskAMI:
             return {'Response': 'failed', 'Message': str(msg)}
         except PermissionDenied as msg:
             return {'Response': 'failed', 'Message': 'Permission Denied'}
+
+    def get_core_channels(self):
+        if self.core_channels:
+            return self.core_channels
+
+        try:
+            self.core_channels = self.connection.CoreShowChannels()
+            return self.core_channels
+        except AttributeError:
+            return None
+
+    def get_context_core_channels(self, context):
+        core_channels = self.get_core_channels()
+        if not core_channels:
+            return
+
+        channels = []
+        for channel in core_channels:
+            if channel.get('Context') == 'from-%s' % context:
+                channels.append(channel)
+        return channels
+
+    def get_core_channels_count(self, context=None):
+        if context:
+            channel_list = self.get_context_core_channels(context)
+        else:
+            channel_list = self.get_core_channels()
+        try:
+            return len(channel_list) / 2
+        except TypeError:
+            return 0
+
+    def get_calls_queue(self, queues):
+        calls = self.get_context_core_channels('internal')
+        if not calls:
+            return 0
+
+        count = 0
+        members = dict((key, value['members'].keys()) for key, value in queues.items())
+
+        for call in calls:
+            if call.get('CallerIDName') in members.get(call.get('Exten')):
+                count += 1
+        return count / 2

@@ -4,7 +4,7 @@
 # Copyright (C) 2015-2017 Rodrigo Ramírez Norambuena <a@rodrigoramirez.com>
 #
 
-from flask import Flask, render_template, jsonify, redirect,\
+from flask import Flask, render_template, jsonify, redirect, \
     request, session, url_for
 from werkzeug.serving import run_simple
 from werkzeug.wsgi import DispatcherMiddleware
@@ -19,12 +19,14 @@ import qpanel.utils as uqpanel
 
 from qpanel.config import QPanelConfig
 from qpanel.backend import Backend
+
 if QPanelConfig().has_queuelog_config():
     from qpanel.model import queuelog_data_queue
 
 
 class User(flask_login.UserMixin):
     pass
+
 
 cfg = QPanelConfig()
 backend = Backend()
@@ -38,7 +40,8 @@ def get_data_queues(queue=None):
         except:
             abort(404)
     if cfg.is_debug:
-        app.logger.debug(data)
+        # app.logger.debug(data)
+        pass
     return data
 
 
@@ -50,6 +53,7 @@ def get_user_config_by_name(username):
         return user
     except:
         return None
+
 
 # Flask env
 app = Flask(__name__)
@@ -160,6 +164,7 @@ def utility_processor():
             return gettext('in call')
         else:
             return gettext('busy')
+
     return dict(str_status_agent=str_status_agent)
 
 
@@ -167,6 +172,7 @@ def utility_processor():
 def utility_processor():
     def request_interval():
         return cfg.interval * 1000
+
     return dict(request_interval=request_interval)
 
 
@@ -179,6 +185,7 @@ def page_not_found(e):
 def utility_processor():
     def check_upgrade():
         return cfg.check_upgrade
+
     return dict(check_upgrade=check_upgrade)
 
 
@@ -186,6 +193,7 @@ def utility_processor():
 def utility_processor():
     def show_service_level():
         return cfg.show_service_level
+
     return dict(show_service_level=show_service_level)
 
 
@@ -193,6 +201,7 @@ def utility_processor():
 def utility_processor():
     def has_users():
         return cfg.has_users()
+
     return dict(has_users=has_users)
 
 
@@ -200,6 +209,7 @@ def utility_processor():
 def utility_processor():
     def clean_str_to_div_id(value):
         return uqpanel.clean_str_to_div_id(value)
+
     return dict(clean_str_to_div_id=clean_str_to_div_id)
 
 
@@ -207,6 +217,7 @@ def utility_processor():
 def utility_processor():
     def is_freeswitch():
         return backend.is_freeswitch()
+
     return dict(is_freeswitch=is_freeswitch)
 
 
@@ -214,6 +225,7 @@ def utility_processor():
 def utility_processor():
     def config():
         return cfg
+
     return dict(config=config)
 
 
@@ -221,6 +233,7 @@ def utility_processor():
 def utility_processor():
     def current_version():
         return upgrader.get_current_version()
+
     return dict(current_version=current_version)
 
 
@@ -235,7 +248,11 @@ def home():
     template = 'index.html'
     if backend.is_freeswitch():
         template = 'fs/index.html'
-    return render_template(template, queues=data)
+
+    context = {
+        'queues': data
+    }
+    return render_template(template, **context)
 
 
 @app.route('/queue/<name>')
@@ -271,8 +288,15 @@ def queue_json(name=None):
 @app.route('/queues')
 @flask_login.login_required
 def queues():
-    data = get_data_queues()
-    return jsonify(data=data)
+    data_queues = get_data_queues()
+    context = {
+        'data': data_queues,
+        'current': backend.connection.get_core_channels_count(),
+        'internal': backend.connection.get_core_channels_count('internal'),
+        'trunk': backend.connection.get_core_channels_count('trunk'),
+        'calls_queue': backend.connection.get_calls_queue(data_queues)
+    }
+    return jsonify(**context)
 
 
 @app.route('/lang')
@@ -377,7 +401,6 @@ def remove_from_queue():
 # ---- Main  ----------
 # ---------------------
 def main():
-
     # Set reloader to False, bug present for imports
     # Retain this as FIXME
     # https://github.com/mitsuhiko/flask/issues/1246
