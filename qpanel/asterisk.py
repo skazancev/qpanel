@@ -9,6 +9,8 @@
 from __future__ import absolute_import
 from Asterisk.Manager import *
 
+from qpanel.config import QPanelConfig
+
 
 class ConnectionErrorAMI(Exception):
     '''
@@ -32,6 +34,7 @@ class AsteriskAMI:
         self.is_connected = False
         self.connection = self.connect_ami()
         self.core_channels = None
+        self.config = QPanelConfig()
 
     def connect_ami(self):
         try:
@@ -161,7 +164,7 @@ class AsteriskAMI:
 
         channels = []
         for channel in core_channels:
-            if channel.get('Context') == 'from-%s' % context:
+            if channel.get('Context') == context:
                 channels.append(channel)
         return channels
 
@@ -176,7 +179,7 @@ class AsteriskAMI:
             return 0
 
     def get_calls_queue(self, queues):
-        calls = self.get_context_core_channels('internal')
+        calls = self.get_context_core_channels(self.config.context_out)
         if not calls:
             return 0
 

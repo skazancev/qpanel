@@ -15,6 +15,7 @@ from .database import session_db, metadata, DeclarativeBase
 from . import utils
 from .config import QPanelConfig
 
+
 cfg = QPanelConfig()
 # Class queue_log Table
 queue_log = Table(cfg.get('queue_log', 'table'), metadata,

@@ -51,6 +51,9 @@ class QPanelConfig:
         self.show_service_level \
             = self.__get_bool_value_config('general',
                                            'show_service_level', False)
+        self.context_in = self.__get_entry_ini_default('general', 'context_in', '')
+        self.context_out = self.__get_entry_ini_default('general', 'context_out', '')
+        self.show_agents = self.__get_bool_value_config('general', 'show_agents', True)
 
     def __open_config_file(self, file_path):
         cfg = six.moves.configparser.ConfigParser()

@@ -58,12 +58,14 @@ def get_user_config_by_name(username):
 # Flask env
 app = Flask(__name__)
 app.config.from_object(__name__)
-babel = Babel(app)
-app.config['BABEL_DEFAULT_LOCALE'] = cfg.language
 app.secret_key = cfg.secret_key
-
+babel = Babel(app)
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+app.config['BABEL_DEFAULT_LOCALE'] = cfg.language
+app.config['CONTEXT_IN'] = cfg.context_in
+app.config['CONTEXT_OUT'] = cfg.context_out
+app.config['SHOW_AGENTS'] = cfg.show_agents
 
 
 def set_data_user(user_config):
@@ -292,8 +294,8 @@ def queues():
     context = {
         'data': data_queues,
         'current': backend.connection.get_core_channels_count(),
-        'internal': backend.connection.get_core_channels_count('internal'),
-        'trunk': backend.connection.get_core_channels_count('trunk'),
+        'internal': backend.connection.get_core_channels_count(cfg.context_out),
+        'trunk': backend.connection.get_core_channels_count(cfg.context_in),
         'calls_queue': backend.connection.get_calls_queue(data_queues)
     }
     return jsonify(**context)
