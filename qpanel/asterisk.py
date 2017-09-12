@@ -279,7 +279,7 @@ class AsteriskAMI:
         events = ['CONNECT']
         start, finish = self.get_period(period)
         query = queuelog_event_by_range_and_types(
-            start, finish, events, queue=queue, order='queue_log.time ASC', query=False
+            start, finish, events, queue=queue, order=QueueLog.time.asc(), query=False
         )
 
         if holdtime is None:
@@ -300,7 +300,7 @@ class AsteriskAMI:
         start, finish = self.get_period(period)
         events = ['ABANDON']
         data = queuelog_event_by_range_and_types(
-            start, finish, events, queue=queue, order='queue_log.time ASC'
+            start, finish, events, queue=queue, order=QueueLog.time.asc()
         )
         data.extend(self.get_answered(period, -self.config.holdtime))
         return data
