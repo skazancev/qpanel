@@ -6,7 +6,7 @@
 # Copyright (C) 2015-2017 Rodrigo Ramírez Norambuena <a@rodrigoramirez.com>
 #
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import calendar
 
@@ -243,7 +243,7 @@ class AsteriskAMI:
         elif period == 'month':
             size = days / 365 * 12
 
-        return round(len(obj_list) / size)
+        return round(len(obj_list) / float(size))
 
     def parse_name(self, name):
         pattern = r'^[a-zA-Z]/([0-9]+)'
