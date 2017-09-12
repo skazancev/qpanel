@@ -88,7 +88,10 @@ def queuelog_event_by_range_and_types(start_date, end_date, events=None,
         if queue:
             q = q.filter(QueueLog.queuename == queue)
 
-        q = q.order_by(order or QueueLog.id.asc())
+        if order is None:
+            order = QueueLog.id.asc()
+
+        q = q.order_by(order)
 
         if query:
             return q.all()
