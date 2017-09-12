@@ -2285,3 +2285,47 @@ label {
     cursor: pointer;
     text-decoration: none;
 }
+
+.info-block .rows {
+    margin-top: 15px;
+}
+
+.info-block .card {
+    background-color: #191b2d;
+    width: 100%;
+    height: auto;
+    margin: 0;
+}
+
+.info-block .cards {
+    display: flex;
+    justify-content: space-around;
+}
+
+.info-block .card .name {
+    text-align: center;
+    padding: 0 10px;
+    background-color: #000327;
+    color: #ffffff;
+    border-top: 1px solid #ffffff;
+}
+
+.info-block .rows .title {
+    background-color: #191b2d;
+    color: #ffffff;
+    padding: 5px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.info-block .card .value {
+    padding: 20px 0;
+    text-align: center;
+    color: #00b117;
+    font-size: 36px;
+}
+
+.full-width-button {
+    width: 100%;
+    margin-top: 20px;
+}

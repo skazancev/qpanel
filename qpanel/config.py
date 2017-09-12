@@ -44,8 +44,9 @@ class QPanelConfig:
         self.secret_key \
             = self.__get_entry_ini_default('general', 'secret_key',
                                            'CHANGEME_ON_CONFIG')
-        self.interval \
-            = self.__get_entry_int_min_value('general', 'interval', 1)
+        self.interval = self.__get_entry_int_min_value('general', 'interval', 1)
+        self.holdtime = self.__get_entry_int_min_value('general', 'holdtime', 20)
+
         self.check_upgrade \
             = self.__get_bool_value_config('general', 'check_upgrade', True)
         self.show_service_level \

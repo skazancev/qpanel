@@ -7,9 +7,15 @@
 #
 
 from __future__ import absolute_import
+
+import calendar
+
 from Asterisk.Manager import *
 
 from qpanel.config import QPanelConfig
+from qpanel.model import get_cdr, queuelog_count_answered, queuelog_event_by_range_and_types, QueueLog
+
+from datetime import datetime, time
 
 
 class ConnectionErrorAMI(Exception):
@@ -20,6 +26,8 @@ class ConnectionErrorAMI(Exception):
     _error = 'Not Connected'
     pass
 
+
+config = QPanelConfig()
 
 class AsteriskAMI:
 
@@ -34,7 +42,7 @@ class AsteriskAMI:
         self.is_connected = False
         self.connection = self.connect_ami()
         self.core_channels = None
-        self.config = QPanelConfig()
+        self.config = config
 
     def connect_ami(self):
         try:
@@ -94,7 +102,8 @@ class AsteriskAMI:
             return {'Response': 'failed', 'Message': 'Permission Denied'}
 
     def hangup(self, channel):
-        '''Hangup Channel
+        """
+        Hangup Channel
 
         Parameters
         ----------
@@ -105,7 +114,7 @@ class AsteriskAMI:
         hangup result action : Dictionary
             if case the fail return return  {'Response': 'failed',
                                              'Message': str(msg)}
-        '''
+        """
         try:
             # hangup channels
             return self.connection.Hangup(channel)
@@ -187,6 +196,116 @@ class AsteriskAMI:
         members = dict((key, value['members'].keys()) for key, value in queues.items())
 
         for call in calls:
-            if call.get('CallerIDName') in members.get(call.get('Exten')):
+            # TODO: Exten is agent name, name: LOCAL/79636815275@from-internal/nj
+            if call.get('Exten') in members.get(call.get('Exten'), []):
                 count += 1
         return count / 2
+
+    def get_day_period(self):
+        start = datetime.combine(datetime.now(), time.min)
+        finish = datetime.combine(datetime.now(), time.max)
+        return start, finish
+
+    def get_month_period(self):
+        date = datetime.now()
+        start = datetime(date.year, date.month, 1)
+        finish = datetime.combine(
+            datetime(date.year, date.month, calendar.monthrange(date.year, date.month)[1]),
+            time.max
+        )
+        return start, finish
+
+    def get_period(self, period):
+        try:
+            return getattr(self, 'get_%s_period' % period)()
+        except AttributeError:
+            return None, None
+
+    def parse_time(self, time):
+        return datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
+
+    def get_avg(self, event, period, **kwargs):
+        try:
+            obj_list = getattr(self, 'get_%s' % event)(**kwargs)
+            if not obj_list:
+                return 0
+
+        except (AttributeError, TypeError):
+            return 0
+
+        start = self.parse_time(obj_list[0].time)
+        finish = self.parse_time(obj_list[-1].time)
+        days = (finish - start).days + 1
+        size = 1
+
+        if period == 'day':
+            size = days
+        elif period == 'month':
+            size = days / 365 * 12
+
+        return round(len(obj_list) / size)
+
+    def parse_name(self, name):
+        pattern = r'^[a-zA-Z]/([0-9]+)'
+        names = re.findall(pattern, name)
+        if names:
+            return names[0]
+
+        return name
+
+    def get_outgoing(self, members, period=None):
+        members = list(map(self.parse_name, members))
+        data = {
+            'members': members
+        }
+
+        if period:
+            start, finish = self.get_period(period)
+            data.update({
+                'start': start,
+                'finish': finish
+            })
+
+        return get_cdr(**data)
+
+    def get_outgoing_avg(self, members, period):
+        return self.get_avg('outgoing', period, members=members)
+
+    def get_outgoing_count(self, members, period):
+        return len(self.get_outgoing(members, period))
+
+    def get_answered(self, queue=None, period=None, holdtime=config.holdtime):
+        events = ['CONNECT']
+        start, finish = self.get_period(period)
+        query = queuelog_event_by_range_and_types(
+            start, finish, events, queue=queue, order='queue_log.time ASC', query=False
+        )
+
+        if holdtime is None:
+            return query.all()
+
+        if holdtime > 0:
+            return query.filter(QueueLog.data1 <= holdtime).all()
+        else:
+            return query.filter(QueueLog.data1 > holdtime).all()
+
+    def get_answered_count(self, queue=None, period=None):
+        return len(self.get_answered(queue, period))
+
+    def get_answered_avg(self, queue=None, period=None):
+        return self.get_avg('answered', period, queue=queue)
+
+    def get_abandon(self, queue=None, period=None):
+        start, finish = self.get_period(period)
+        events = ['ABANDON']
+        data = queuelog_event_by_range_and_types(
+            start, finish, events, queue=queue, order='queue_log.time ASC'
+        )
+        data.extend(self.get_answered(period, -self.config.holdtime))
+        return data
+
+    def get_abandon_count(self, queue=None, period=None):
+        return len(self.get_abandon(queue, period))
+
+    def get_abandon_avg(self, queue=None, period=None):
+        return self.get_avg('abandon', period, queue=queue)

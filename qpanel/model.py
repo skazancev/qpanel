@@ -8,7 +8,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from sqlalchemy import Table, Column, Integer, Text
+from sqlalchemy import Table, Column, Integer, Text, DateTime
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 from .database import session_db, metadata, DeclarativeBase
@@ -20,7 +20,7 @@ cfg = QPanelConfig()
 # Class queue_log Table
 queue_log = Table(cfg.get('queue_log', 'table'), metadata,
                   Column('id', Integer, primary_key=True, nullable=False),
-                  Column('time', Text),
+                  Column('time', DateTime),
                   Column('callid', Text),
                   Column('queuename', Text),
                   Column('agent', Text),
@@ -31,6 +31,13 @@ queue_log = Table(cfg.get('queue_log', 'table'), metadata,
                   Column('data3', Text),
                   Column('data4', Text),
                   Column('data5', Text))
+
+
+cdr_log = Table('cdr', metadata,
+                Column('uid', primary_key=True, nullable=False),
+                Column('src', Text),
+                Column('calldate', DateTime),
+                Column('disposition', Text))
 
 
 class QueueLog(DeclarativeBase):
@@ -53,8 +60,21 @@ class QueueLog(DeclarativeBase):
                 'data5': self.data5}
 
 
+class CDRLog(DeclarativeBase):
+    __table__ = cdr_log
+    query = session_db.query_property()
+
+    def as_dict(self):
+        return {
+            'uid': self.uid,
+            'src': self.src,
+            'time': self.calldate,
+            'disposition': self.disposition
+        }
+
+
 def queuelog_event_by_range_and_types(start_date, end_date, events=None,
-                                      agent=None, queue=None):
+                                      agent=None, queue=None, order=None, query=True):
     try:
         q = session_db.query(QueueLog)
         if start_date:
@@ -67,7 +87,14 @@ def queuelog_event_by_range_and_types(start_date, end_date, events=None,
             q = q.filter(QueueLog.agent.in_(agent))
         if queue:
             q = q.filter(QueueLog.queuename == queue)
-        return q.order_by(QueueLog.id.asc()).all()
+
+        q = q.order_by(order or QueueLog.id.asc())
+
+        if query:
+            return q.all()
+
+        return q
+
     except NoResultFound as e:
         print(e)
         return None
@@ -216,3 +243,17 @@ def queuelog_data_queue(from_date, to_date, agent=None, queue=None):
                                                                  to_date,
                                                                  agent, queue)
     return data
+
+
+def get_cdr(start=None, finish=None, members=None):
+    q = session_db.query(CDRLog)
+    if start:
+        q = q.filter(CDRLog.calldate >= start)
+
+    if finish:
+        q = q.filter(CDRLog.calldate <= finish)
+
+    if members:
+        q = q.filter(CDRLog.src.in_(members))
+
+    return q.order_by(CDRLog.calldate.asc()).all()

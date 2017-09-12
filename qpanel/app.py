@@ -260,11 +260,47 @@ def home():
 @app.route('/queue/<name>')
 @flask_login.login_required
 def queue(name=None):
-    data = get_data_queues(name)
+    # data = get_data_queues(name)
     template = 'queue.html'
-    if backend.is_freeswitch():
-        template = 'fs/queue.html'
-    return render_template(template, data=data, name=name)
+    # members = data['members']
+    # if backend.is_freeswitch():
+    #     template = 'fs/queue.html'
+    #
+    # context = {
+    #     'name': name,
+    #     'data': data,
+    #     'answered': {
+    #         'day': {
+    #             'value': backend.connection.get_answered_count(queue=name, period='day'),
+    #             'avg': backend.connection.get_answered_avg(queue=name, period='day')
+    #         },
+    #         'month': {
+    #             'value': backend.connection.get_answered_count(queue=name, period='month'),
+    #             'avg': backend.connection.get_answered_avg(queue=name, period='month')
+    #         }
+    #     },
+    #     'abandon': {
+    #         'day': {
+    #             'value': backend.connection.get_abandon_count(queue=name, period='day'),
+    #             'avg': backend.connection.get_abandon_avg(queue=name, period='day')
+    #         },
+    #         'month': {
+    #             'value': backend.connection.get_abandon_count(queue=name, period='month'),
+    #             'avg': backend.connection.get_abandon_avg(queue=name, period='month')
+    #         }
+    #     },
+    #     'outgoing': {
+    #         'day': {
+    #             'value': backend.connection.get_outgoing_count(members, period='day'),
+    #             'avg': backend.connection.get_outgoing_avg(members, period='day')
+    #         },
+    #         'month': {
+    #             'value': backend.connection.get_outgoing_count(members, period='month'),
+    #             'avg': backend.connection.get_outgoing_count(members, period='month')
+    #         }
+    #     }
+    # }
+    return render_template(template, **{'name': name})
 
 
 @app.route('/all_queues')
@@ -283,7 +319,46 @@ def all_queues():
 @flask_login.login_required
 def queue_json(name=None):
     data = get_data_queues(name)
-    return jsonify(name=name, data=data)
+    members = data['members']
+    context = {
+        'name': name,
+        'data': data,
+        'answered': {
+            'day': {
+                'value': backend.connection.get_answered_count(queue=name, period='day'),
+                'avg': backend.connection.get_answered_avg(queue=name, period='day')
+            },
+            'month': {
+                'value': backend.connection.get_answered_count(queue=name, period='month'),
+                'avg': backend.connection.get_answered_avg(queue=name, period='month')
+            }
+        },
+        'abandon': {
+            'day': {
+                'value': backend.connection.get_abandon_count(queue=name, period='day'),
+                'avg': backend.connection.get_abandon_avg(queue=name, period='day')
+            },
+            'month': {
+                'value': backend.connection.get_abandon_count(queue=name, period='month'),
+                'avg': backend.connection.get_abandon_avg(queue=name, period='month')
+            }
+        },
+        'outgoing': {
+            'day': {
+                'value': backend.connection.get_outgoing_count(members, period='day'),
+                'avg': backend.connection.get_outgoing_avg(members, period='day')
+            },
+            'month': {
+                'value': backend.connection.get_outgoing_count(members, period='month'),
+                'avg': backend.connection.get_outgoing_count(members, period='month')
+            }
+        },
+        'current': backend.connection.get_core_channels_count(),
+        'internal': backend.connection.get_core_channels_count(cfg.context_out),
+        'trunk': backend.connection.get_core_channels_count(cfg.context_in),
+        # 'calls_queue': backend.connection.get_calls_queue(data_queues)
+    }
+    return jsonify(**context)
 
 
 # data queue
