@@ -353,10 +353,9 @@ def queue_json(name=None):
                 'avg': backend.connection.get_outgoing_count(members, period='month')
             }
         },
-        'current': backend.connection.get_core_channels_count(),
-        'internal': backend.connection.get_core_channels_count(cfg.context_out),
-        'trunk': backend.connection.get_core_channels_count(cfg.context_in),
-        # 'calls_queue': backend.connection.get_calls_queue(data_queues)
+        'internal': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_out),
+        'trunk': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_in),
+        'current': backend.connection.get_core_channels_count()
     }
     return jsonify(**context)
 

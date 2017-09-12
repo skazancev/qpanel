@@ -49,16 +49,8 @@
                         <div class="value" id="calls_current">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">Входящие звонки</div>
-                        <div class="value" id="calls_internal">0</div>
-                    </div>
-                    <div class="card">
                         <div class="name">Исходящие звонки</div>
                         <div class="value" id="calls_trunk">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="name">Звонки в очереди</div>
-                        <div class="value" id="calls_queue">0</div>
                     </div>
                 </div>
             </div>
@@ -72,7 +64,7 @@
                     </div>
                     <div class="card">
                         <div class="name">Пропущенные сегодня</div>
-                        <div class="value">Сегодня <span id="abandon_day"></span></div>
+                        <div class="value">Сегодня <span id="abandon_day">0</span></div>
                         <div class="value">Месяц <span id="abandon_month">0</span></div>
                     </div>
                     <div class="card">
@@ -125,11 +117,9 @@
     }
 
     function parseDataQueue(data) {
-        $('#internal').html();
-        $('#calls_current').html();
-        $('#calls_internal').html();
-        $('#calls_trunk').html();
-        $('#calls_queue').html();
+        $('#calls_current').html(data.current);
+        $('#calls_internal').html(data.internal);
+        $('#calls_trunk').html(data.trunk);
         $('#answered_day').html(data.answered.day.value + ' (' + data.answered.day.avg + ')');
         $('#abandon_day').html(data.abandon.day.value + ' (' + data.abandon.day.avg + ')');
         $('#outgoing_day').html(data.outgoing.day.value + ' (' + data.outgoing.day.avg + ')');

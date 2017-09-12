@@ -13,7 +13,7 @@ import calendar
 from Asterisk.Manager import *
 
 from qpanel.config import QPanelConfig
-from qpanel.model import get_cdr, queuelog_count_answered, queuelog_event_by_range_and_types, QueueLog
+from qpanel.model import get_cdr, queuelog_event_by_range_and_types, QueueLog
 
 from datetime import datetime, time
 
@@ -187,17 +187,18 @@ class AsteriskAMI:
         except TypeError:
             return 0
 
-    def get_calls_queue(self, queues):
-        calls = self.get_context_core_channels(self.config.context_out)
+    def get_calls_queue(self, queues, context=None):
+        calls = self.get_context_core_channels(context)
         if not calls:
             return 0
 
         count = 0
-        members = dict((key, value['members'].keys()) for key, value in queues.items())
+        members = []
+        for key, value in queues.items():
+            members.extend(value['members'].keys())
 
         for call in calls:
-            # TODO: Exten is agent name, name: LOCAL/79636815275@from-internal/nj
-            if call.get('Exten') in members.get(call.get('Exten'), []):
+            if call.get('CallIDNum') in members:
                 count += 1
         return count / 2
 
