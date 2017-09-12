@@ -74,6 +74,14 @@
                     </div>
                 </div>
             </div>
+            <div class="rows">
+                <div class="title">SLA</div>
+                <div class="cards">
+                    <div class="card">
+                        <div class="value"><span id="sla">0</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <a class="btn btn-default full-width-button" href="/">Back</a>
@@ -126,6 +134,7 @@
         $('#answered_month').html(data.answered.month.value + ' (' + data.answered.month.avg + ')');
         $('#abandon_month').html(data.abandon.month.value + ' (' + data.abandon.month.avg + ')');
         $('#outgoing_month').html(data.outgoing.month.value + ' (' + data.outgoing.month.avg + ')');
+        $('#sla').html(data.answered.all + ' / ' + data.holdtime)
     }
 </script>
 

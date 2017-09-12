@@ -331,12 +331,13 @@ def queue_json(name=None):
             'month': {
                 'value': backend.connection.get_answered_count(queue=name, period='month'),
                 'avg': backend.connection.get_answered_avg(queue=name, period='month')
-            }
+            },
+            'all': backend.connection.get_answered_count(queue=name)
         },
         'abandon': {
             'day': {
                 'value': backend.connection.get_abandon_count(queue=name, period='day'),
-                'avg': backend.connection.get_abandon_avg(queue=name, period='day')
+                'avg': backend.connection.get_abandon_avg(queue=name, period='day'),
             },
             'month': {
                 'value': backend.connection.get_abandon_count(queue=name, period='month'),
@@ -355,7 +356,8 @@ def queue_json(name=None):
         },
         'internal': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_out),
         'trunk': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_in),
-        'current': backend.connection.get_core_channels_count()
+        'current': backend.connection.get_core_channels_count(),
+        'holdtime': cfg.holdtime
     }
     return jsonify(**context)
 
