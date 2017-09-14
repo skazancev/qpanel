@@ -290,23 +290,37 @@ class AsteriskAMI:
         else:
             return query.filter(QueueLog.data1 > holdtime).all()
 
-    def get_answered_count(self, queue=None, period=None):
-        return len(self.get_answered(queue, period))
+    def get_answered_count(self, queue=None, period=None, holdtime=config.holdtime):
+        return len(self.get_answered(queue, period, holdtime))
 
     def get_answered_avg(self, queue=None, period=None):
         return self.get_avg('answered', period, queue=queue)
 
-    def get_abandon(self, queue=None, period=None):
+    def get_abandon(self, queue=None, period=None, holdtime=True):
         start, finish = self.get_period(period)
         events = ['ABANDON']
         data = queuelog_event_by_range_and_types(
             start, finish, events, queue=queue, order=QueueLog.time.asc()
         )
-        data.extend(self.get_answered(period, -self.config.holdtime))
+        if holdtime:
+            data.extend(self.get_answered(period, -self.config.holdtime))
         return data
 
-    def get_abandon_count(self, queue=None, period=None):
-        return len(self.get_abandon(queue, period))
+    def get_abandon_count(self, queue=None, period=None, holdtime=True):
+        return len(self.get_abandon(queue, period, holdtime))
 
     def get_abandon_avg(self, queue=None, period=None):
         return self.get_avg('abandon', period, queue=queue)
+
+    def get_calls_count(self, queue=None, period=None):
+        abandon = self.get_abandon_count(queue, period)
+        answered = self.get_answered_count(queue, period)
+        return abandon + answered
+
+    def get_sla_abandon(self, queue=None, period=None, count=0):
+        result = self.get_abandon_count(queue, period, False) / count * 100
+        return round(result)
+
+    def get_sla_answered(self, queue=None, period=None, count=0):
+        result = self.get_abandon_count(queue, period, -self.config.holdtime) / count * 100
+        return round(result)

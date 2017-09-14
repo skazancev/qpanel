@@ -320,6 +320,7 @@ def all_queues():
 def queue_json(name=None):
     data = get_data_queues(name)
     members = data['members']
+    calls_count = backend.connection.get_calls_count()
     context = {
         'name': name,
         'data': data,
@@ -354,10 +355,20 @@ def queue_json(name=None):
                 'avg': backend.connection.get_outgoing_count(members, period='month')
             }
         },
+        'current': backend.connection.get_calls_queue(queues={name: data}),
         'internal': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_out),
         'trunk': backend.connection.get_calls_queue(queues={name: data}, context=cfg.context_in),
-        'current': backend.connection.get_core_channels_count(),
-        'holdtime': cfg.holdtime
+        'holdtime': cfg.holdtime,
+        'sla': {
+            'abandon': {
+                'day': backend.connection.get_sla_abandon(name, period='day', count=calls_count),
+                'month': backend.connection.get_sla_abandon(name, period='month', count=calls_count)
+            },
+            'holdtime': {
+                'day': backend.connection.get_sla_answered(name, period='day', count=calls_count),
+                'month': backend.connection.get_sla_answered(name, period='month', count=calls_count)
+            }
+        }
     }
     return jsonify(**context)
 

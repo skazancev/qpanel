@@ -41,16 +41,36 @@
                 <div class="title">Текущая статистика</div>
                 <div class="cards">
                     <div class="card">
-                        <div class="name">Всего звонков</div>
-                        <div class="value" id="internal">0</div>
+                        <div class="name">Всего</div>
+                        <div class="value" id="calls_all">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">Текущие звонки</div>
+                        <div class="name">Входящие</div>
+                        <div class="value" id="calls_internal">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">В очереди</div>
                         <div class="value" id="calls_current">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">Исходящие звонки</div>
+                        <div class="name">Исходящие</div>
                         <div class="value" id="calls_trunk">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">Занятые линии</div>
+                        <div class="value" id="calls_free">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">Свободные линии</div>
+                        <div class="value" id="calls_busy">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">Ср. время ответа</div>
+                        <div class="value" id="av_time">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="name">Ср. время ожидания</div>
+                        <div class="value" id="av_wait">0</div>
                     </div>
                 </div>
             </div>
@@ -78,7 +98,12 @@
                 <div class="title">SLA</div>
                 <div class="cards">
                     <div class="card">
-                        <div class="value"><span id="sla">0</span></div>
+                        <div class="name">Пропущенные звонки день (мес)</div>
+                        <div class="value"><span id="sla_abandon">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="name">Превышающие звонки день (мес)</div>
+                        <div class="value"><span id="sla_holdtime">0%</span></div>
                     </div>
                 </div>
             </div>
@@ -128,13 +153,17 @@
         $('#calls_current').html(data.current);
         $('#calls_internal').html(data.internal);
         $('#calls_trunk').html(data.trunk);
+        $('#calls_all').html(data.data.Call);
         $('#answered_day').html(data.answered.day.value + ' (' + data.answered.day.avg + ')');
         $('#abandon_day').html(data.abandon.day.value + ' (' + data.abandon.day.avg + ')');
         $('#outgoing_day').html(data.outgoing.day.value + ' (' + data.outgoing.day.avg + ')');
         $('#answered_month').html(data.answered.month.value + ' (' + data.answered.month.avg + ')');
         $('#abandon_month').html(data.abandon.month.value + ' (' + data.abandon.month.avg + ')');
         $('#outgoing_month').html(data.outgoing.month.value + ' (' + data.outgoing.month.avg + ')');
-        $('#sla').html(data.answered.all + ' / ' + data.holdtime)
+        $('#av_wait').html(parseInt(data.data.Holdtime).toString().toMMSS());
+        $('#av_time').html(parseInt(data.data.TalkTime).toString().toMMSS());
+        $('#sla_abandon').html(data.sla.abandon.day + '% (' + data.sla.abandon.month + '%)');
+        $('#sla_holdtime').html(data.sla.holdtime.day + '% (' + data.sla.holdtime.month + '%)')
     }
 </script>
 
