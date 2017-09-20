@@ -19,8 +19,7 @@ from .config import QPanelConfig
 cfg = QPanelConfig()
 # Class queue_log Table
 queue_log = Table(cfg.get('queue_log', 'table'), metadata,
-                  Column('id', Integer, primary_key=True, nullable=False),
-                  Column('time', DateTime),
+                  Column('time', DateTime, primary_key=True),
                   Column('callid', Text),
                   Column('queuename', Text),
                   Column('agent', Text),
@@ -34,9 +33,8 @@ queue_log = Table(cfg.get('queue_log', 'table'), metadata,
 
 
 cdr_log = Table('cdr', metadata,
-                Column('uid', primary_key=True, nullable=False),
                 Column('src', Text),
-                Column('calldate', DateTime),
+                Column('calldate', DateTime, primary_key=True),
                 Column('disposition', Text))
 
 
@@ -46,8 +44,7 @@ class QueueLog(DeclarativeBase):
 
     # relation definitions
     def as_dict(self):
-        return {'id': self.id,
-                'time': self.time.split('.')[0],
+        return {'time': self.time.split('.')[0],
                 'callid': self.callid,
                 'queuename': self.queuename,
                 'agent': self.agent,
@@ -66,7 +63,6 @@ class CDRLog(DeclarativeBase):
 
     def as_dict(self):
         return {
-            'uid': self.uid,
             'src': self.src,
             'time': self.calldate,
             'disposition': self.disposition
@@ -89,7 +85,7 @@ def queuelog_event_by_range_and_types(start_date, end_date, events=None,
             q = q.filter(QueueLog.queuename == queue)
 
         if order is None:
-            order = QueueLog.id.asc()
+            order = QueueLog.time.asc()
 
         q = q.order_by(order)
 
