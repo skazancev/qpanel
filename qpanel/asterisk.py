@@ -187,18 +187,18 @@ class AsteriskAMI:
         except TypeError:
             return 0
 
-    def get_calls_queue(self, queues, context=None):
+    def get_calls_queue(self, queues=None, context=None, members=[]):
         calls = self.get_context_core_channels(context)
         if not calls:
             return []
 
-        members = []
-        for key, value in queues.items():
-            members.extend(value['members'].keys())
+        if queues:
+            for key, value in queues.items():
+                members.extend(value['members'].keys())
 
         result = []
         for call in calls:
-            if call.get('CallIDNum') in members:
+            if call.get('CallerIDNum') in members:
                 result.append(call)
 
         return result
@@ -308,6 +308,7 @@ class AsteriskAMI:
         )
         if holdtime:
             data.extend(self.get_answered(period, -self.config.holdtime))
+
         return data
 
     def get_abandon_count(self, queue=None, period=None, holdtime=True):
@@ -342,3 +343,6 @@ class AsteriskAMI:
             else:
                 busy.append(member)
         return busy, free, unavailable
+
+    def get_in_call(self, members):
+        return len([i for j, i in members.items() if i['InCall'] == '1'])

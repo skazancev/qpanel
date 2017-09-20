@@ -319,9 +319,9 @@ def queue_json(name=None):
         },
         'busy': len(busy),
         'free': len(free),
-        'current': backend.connection.get_calls_queue_count(queues={name: data}),
+        'current': backend.connection.get_in_call(members),
         'internal': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_out),
-        'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
+        # 'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
         'holdtime': cfg.holdtime,
         'sla': {
             'abandon': {
@@ -334,6 +334,7 @@ def queue_json(name=None):
             }
         }
     }
+    context['trunk'] = context['busy'] - context['internal']
     return jsonify(**context)
 
 

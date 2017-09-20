@@ -153,7 +153,7 @@
         $('#calls_current').html(data.current);
         $('#calls_internal').html(data.internal);
         $('#calls_trunk').html(data.trunk);
-        $('#calls_all').html(data.data.Call);
+        $('#calls_all').html(data.data.Calls);
         $('#answered_day').html(data.answered.day.value + ' (' + data.answered.day.avg + ')');
         $('#abandon_day').html(data.abandon.day.value + ' (' + data.abandon.day.avg + ')');
         $('#outgoing_day').html(data.outgoing.day.value + ' (' + data.outgoing.day.avg + ')');
@@ -163,7 +163,7 @@
         $('#av_wait').html(parseInt(data.data.Holdtime).toString().toMMSS());
         $('#av_time').html(parseInt(data.data.TalkTime).toString().toMMSS());
         $('#sla_abandon').html(data.sla.abandon.day + '% (' + data.sla.abandon.month + '%)');
-        $('#sla_holdtime').html(data.sla.holdtime.day + '% (' + data.sla.holdtime.month + '%)')
+        $('#sla_holdtime').html(data.sla.holdtime.day + '% (' + data.sla.holdtime.month + '%)');
         $('#calls_free').html(data.free);
         $('#calls_busy').html(data.busy)
     }
