@@ -38,22 +38,22 @@
     <div id="main-content">
         <div class="info-block">
             <div class="rows">
-                <div class="title">Текущая статистика</div>
+                <div class="title">Текущая статистика вызовов</div>
                 <div class="cards">
                     <div class="card">
-                        <div class="name">Всего</div>
+                        <div class="name">Кол-во звонков</div>
                         <div class="value" id="calls_all">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">Входящие</div>
+                        <div class="name">Кол-во вх. разг.</div>
                         <div class="value" id="calls_internal">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">В очереди</div>
+                        <div class="name">Вх. в очереди</div>
                         <div class="value" id="calls_current">0</div>
                     </div>
                     <div class="card">
-                        <div class="name">Исходящие</div>
+                        <div class="name">Исх. в очереди</div>
                         <div class="value" id="calls_trunk">0</div>
                     </div>
                     <div class="card">
@@ -75,22 +75,22 @@
                 </div>
             </div>
             <div class="rows">
-                <div class="title">Общая статистика</div>
+                <div class="title">Общая статистика вызовов</div>
                 <div class="cards">
                     <div class="card">
-                        <div class="name">Отвеченные сегодня</div>
-                        <div class="value">Сегодня <span id="answered_day">0</span></div>
-                        <div class="value">Месяц <span id="answered_month">0</span></div>
+                        <div class="name">Пропущенные (ср)</div>
+                        <div class="value">Сег. <span id="abandon_day">0</span></div>
+                        <div class="value">Мес. <span id="abandon_month">0</span></div>
                     </div>
                     <div class="card">
-                        <div class="name">Пропущенные сегодня</div>
-                        <div class="value">Сегодня <span id="abandon_day">0</span></div>
-                        <div class="value">Месяц <span id="abandon_month">0</span></div>
+                        <div class="name">Принятые (ср)</div>
+                        <div class="value">Сег. <span id="answered_day">0</span></div>
+                        <div class="value">Мес. <span id="answered_month">0</span></div>
                     </div>
                     <div class="card">
-                        <div class="name">Исходящие сегодня</div>
-                        <div class="value">Сегодня <span id="outgoing_day">0</span></div>
-                        <div class="value">Месяц <span id="outgoing_month">0</span></div>
+                        <div class="name">Совершенные (ср)</div>
+                        <div class="value">Сег. <span id="outgoing_day">0</span></div>
+                        <div class="value">Мес. <span id="outgoing_month">0</span></div>
                     </div>
                 </div>
             </div>
@@ -164,6 +164,8 @@
         $('#av_time').html(parseInt(data.data.TalkTime).toString().toMMSS());
         $('#sla_abandon').html(data.sla.abandon.day + '% (' + data.sla.abandon.month + '%)');
         $('#sla_holdtime').html(data.sla.holdtime.day + '% (' + data.sla.holdtime.month + '%)')
+        $('#calls_free').html(data.free);
+        $('#calls_busy').html(data.busy)
     }
 </script>
 

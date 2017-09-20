@@ -190,17 +190,21 @@ class AsteriskAMI:
     def get_calls_queue(self, queues, context=None):
         calls = self.get_context_core_channels(context)
         if not calls:
-            return 0
+            return []
 
-        count = 0
         members = []
         for key, value in queues.items():
             members.extend(value['members'].keys())
 
+        result = []
         for call in calls:
             if call.get('CallIDNum') in members:
-                count += 1
-        return count / 2
+                result.append(call)
+
+        return result
+
+    def get_calls_queue_count(self, queues, context=None):
+        return len(self.get_calls_queue(queues, context)) / 2
 
     def get_day_period(self):
         start = datetime.combine(datetime.now(), time.min)
@@ -324,3 +328,14 @@ class AsteriskAMI:
     def get_sla_answered(self, queue=None, period=None, count=0):
         result = self.get_abandon_count(queue, period, -self.config.holdtime) / count * 100
         return round(result)
+
+    def get_members(self, members):
+        busy = free = unavailable = []
+        for member in members:
+            if member['Status'] == 1:
+                free.append(member)
+            elif member['Status'] in [0, 4, 5]:
+                unavailable.append(member)
+            else:
+                busy.append(member)
+        return busy, free, unavailable
