@@ -330,11 +330,14 @@ class AsteriskAMI:
         return round(result)
 
     def get_members(self, members):
-        busy = free = unavailable = []
-        for member in members:
-            if member['Status'] == 1:
+        busy = []
+        free = []
+        unavailable = []
+        for name, member in members.items():
+            status = int(member['Status'])
+            if status == 1:
                 free.append(member)
-            elif member['Status'] in [0, 4, 5]:
+            elif status in [0, 4, 5]:
                 unavailable.append(member)
             else:
                 busy.append(member)
