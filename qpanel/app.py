@@ -286,6 +286,8 @@ def queue_json(name=None):
     context = {
         'name': name,
         'data': data,
+
+        # Отвеченные звонки
         'answered': {
             'day': {
                 'value': backend.connection.get_answered_count(queue=name, period='day'),
@@ -297,6 +299,7 @@ def queue_json(name=None):
             },
             'all': backend.connection.get_answered_count(queue=name)
         },
+        # Пропущенные звонки
         'abandon': {
             'day': {
                 'value': backend.connection.get_abandon_count(queue=name, period='day'),
@@ -307,6 +310,7 @@ def queue_json(name=None):
                 'avg': backend.connection.get_abandon_avg(queue=name, period='month')
             }
         },
+        # Исходящие звонки
         'outgoing': {
             'day': {
                 'value': backend.connection.get_outgoing_count(members, period='day'),
@@ -317,12 +321,23 @@ def queue_json(name=None):
                 'avg': backend.connection.get_outgoing_count(members, period='month')
             }
         },
+        # Количество занятых линий
         'busy': len(busy),
+
+        # Количество свободных линий
         'free': len(free),
+
+        # Текущие звонки
         'current': backend.connection.get_in_call(members),
+
+        # Входящие звонки
         'internal': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_out),
         # 'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
+
+        # Время ожидания
         'holdtime': cfg.holdtime,
+
+        # SLA
         'sla': {
             'abandon': {
                 'day': backend.connection.get_sla_abandon(name, period='day', count=calls_count),
