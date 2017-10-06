@@ -309,7 +309,10 @@ class AsteriskAMI:
         elif period == 'month':
             size = days / 365 * 12
 
-        return round(len(obj_list) / float(size))
+        try:
+            return round(len(obj_list) / float(size))
+        except ZeroDivisionError:
+            return 0
 
     def parse_name(self, name):
         pattern = r'^[a-zA-Z]/([0-9]+)'
