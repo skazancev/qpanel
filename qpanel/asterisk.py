@@ -341,7 +341,6 @@ class AsteriskAMI:
                 'start': start,
                 'finish': finish
             })
-        print(data)
         return get_cdr(**data)
 
     def get_outgoing_avg(self, members, period):

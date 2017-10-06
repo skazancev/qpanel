@@ -332,7 +332,7 @@ def queue_json(name=None):
 
         # Входящие звонки
         'internal': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
-        # 'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
+        'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_out),
 
         # Время ожидания
         'holdtime': cfg.holdtime,
@@ -349,7 +349,6 @@ def queue_json(name=None):
             }
         }
     }
-    context['trunk'] = context['busy'] - context['internal']
     return jsonify(**context)
 
 
