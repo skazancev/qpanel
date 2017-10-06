@@ -280,7 +280,10 @@ class AsteriskAMI:
             return None, None
 
     def parse_time(self, time):
-        return datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
+        try:
+            return datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+        except TypeError:
+            return time
 
     def get_avg(self, event, period, **kwargs):
         """
@@ -303,8 +306,8 @@ class AsteriskAMI:
         # obj_list отсортирован по времени
         # минимальная дата - первый объект
         # максимальная дата - последний объект
-        start = self.parse_time(obj_list[0].time)
-        finish = self.parse_time(obj_list[-1].time)
+        start = self.parse_time(obj_list[0].as_dict()['time'])
+        finish = self.parse_time(obj_list[-1].as_dict()['time'])
         days = (finish - start).days + 1
         size = 1
         # Получаем среднее арифметическое количество звонков для дня или месяца
@@ -322,7 +325,7 @@ class AsteriskAMI:
             return 0
 
     def parse_name(self, name):
-        pattern = r'^[a-zA-Z]/([0-9]+)'
+        pattern = r'^[a-zA-Z]+/([0-9]+)'
         names = re.findall(pattern, name)
         if names:
             return names[0]

@@ -34,8 +34,7 @@ cdr_log = Table('cdr', metadata,
                 Column('cnum', Text),
                 Column('calldate', DateTime, primary_key=True),
                 Column('disposition', Text),
-                Column('dcontext', Text)
-                )
+                Column('dcontext', Text))
 
 
 class QueueLog(DeclarativeBase):
