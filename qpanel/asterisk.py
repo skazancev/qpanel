@@ -10,6 +10,7 @@ from __future__ import absolute_import, division
 
 import calendar
 
+import math
 from Asterisk.Manager import *
 
 from qpanel.config import QPanelConfig
@@ -299,7 +300,6 @@ class AsteriskAMI:
         finish = self.parse_time(obj_list[-1].time)
         days = (finish - start).days + 1
         size = 1
-
         # Получаем среднее арифметическое количество звонков для дня или месяца
         # День - длина obj_list / количество дней в периоде от минимальной даты до максимальной
         # Месяц - длина obj_list / количество дней в периоде от минимальной даты до максимальной / 365 * 12
@@ -307,7 +307,7 @@ class AsteriskAMI:
             size = days
 
         elif period == 'month':
-            size = days / 365 * 12
+            size = math.ceil(days / (365 / 12))
 
         try:
             return round(len(obj_list) / float(size))
@@ -376,13 +376,13 @@ class AsteriskAMI:
         if holdtime > 0:
             return query.filter(QueueLog.data1 <= holdtime).all()
         else:
-            return query.filter(QueueLog.data1 > holdtime).all()
+            return query.filter(QueueLog.data1 > abs(holdtime)).all()
 
     def get_answered_count(self, queue=None, period=None, holdtime=config.holdtime):
         return len(self.get_answered(queue, period, holdtime))
 
-    def get_answered_avg(self, queue=None, period=None):
-        return self.get_avg('answered', period, queue=queue)
+    def get_answered_avg(self, queue=None, period=None, holdtime=None):
+        return self.get_avg('answered', period, queue=queue, holdtime=holdtime)
 
     def get_abandon(self, queue=None, period=None, holdtime=True):
         """
@@ -401,8 +401,9 @@ class AsteriskAMI:
         # Если есть время ожидания (holdtime), то прибавляем к списку пропущенных
         # звонков список отвеченных после времени ожидания
         if holdtime:
-            data.extend(self.get_answered(period, -self.config.holdtime))
+            data.extend(self.get_answered(period=period, holdtime=-self.config.holdtime))
 
+        data = list(filter(lambda x: x.time, data))[::-1]
         return data
 
     def get_abandon_count(self, queue=None, period=None, holdtime=True):

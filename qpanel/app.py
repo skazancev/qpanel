@@ -290,11 +290,11 @@ def queue_json(name=None):
         # Отвеченные звонки
         'answered': {
             'day': {
-                'value': backend.connection.get_answered_count(queue=name, period='day'),
+                'value': backend.connection.get_answered_count(queue=name, period='day', holdtime=None),
                 'avg': backend.connection.get_answered_avg(queue=name, period='day')
             },
             'month': {
-                'value': backend.connection.get_answered_count(queue=name, period='month'),
+                'value': backend.connection.get_answered_count(queue=name, period='month', holdtime=None),
                 'avg': backend.connection.get_answered_avg(queue=name, period='month')
             },
             'all': backend.connection.get_answered_count(queue=name)
