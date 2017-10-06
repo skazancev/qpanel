@@ -318,7 +318,7 @@ def queue_json(name=None):
             },
             'month': {
                 'value': backend.connection.get_outgoing_count(members, period='month'),
-                'avg': backend.connection.get_outgoing_count(members, period='month')
+                'avg': backend.connection.get_outgoing_avg(members, period='month')
             }
         },
         # Количество занятых линий
