@@ -72,6 +72,7 @@ class CDRLog(DeclarativeBase):
 def queuelog_event_by_range_and_types(start_date, end_date, events=None,
                                       agent=None, queue=None, order=None, query=True):
     try:
+        session_db.rollback()
         q = session_db.query(QueueLog)
         if start_date:
             q = q.filter(QueueLog.time >= start_date)
@@ -244,6 +245,7 @@ def queuelog_data_queue(from_date, to_date, agent=None, queue=None):
 
 
 def get_cdr(start=None, finish=None, members=None, dcontext=None):
+    session_db.rollback()
     q = session_db.query(CDRLog)
     if start:
         q = q.filter(CDRLog.calldate >= start)
@@ -256,4 +258,5 @@ def get_cdr(start=None, finish=None, members=None, dcontext=None):
 
     if dcontext:
         q = q.filter(CDRLog.dcontext == dcontext)
-    return q.order_by(CDRLog.calldate.asc()).all()
+    data = q.order_by(CDRLog.calldate.asc()).all()
+    return data
