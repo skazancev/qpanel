@@ -63,7 +63,7 @@ class CDRLog(DeclarativeBase):
 
     def as_dict(self):
         return {
-            'src': self.src,
+            'src': self.cnum,
             'time': self.calldate,
             'disposition': self.disposition,
             'dcontext': self.dcontext
