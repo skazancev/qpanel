@@ -18,6 +18,11 @@ language = en
 check_upgrade = True
 ;freeswitch = True ; Use FreeSWITCH as backend. Use mod_callcenter
 show_service_level = False ; Show information of service level of a queue
+context_in = from-trunk
+context_out = from-internal
+show_agents = False
+holdtime = 20
+
 
 [rename]
 ; This section if for rename name of queue
