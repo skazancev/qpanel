@@ -331,7 +331,7 @@ def queue_json(name=None):
         'current': backend.connection.get_in_call(members),
 
         # Входящие звонки
-        'internal': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_out),
+        'internal': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
         # 'trunk': backend.connection.get_calls_queue_count(queues={name: data}, context=cfg.context_in),
 
         # Время ожидания
