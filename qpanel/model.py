@@ -166,7 +166,6 @@ def parse_list_record(list):
         time = int(list[0])
         record['time'] = utils.dt(time)
     except:
-        print(list)
         pass
 
     i = 1
@@ -257,5 +256,4 @@ def get_cdr(start=None, finish=None, members=None, dcontext=None):
 
     if dcontext:
         q = q.filter(CDRLog.dcontext == dcontext)
-
     return q.order_by(CDRLog.calldate.asc()).all()

@@ -302,11 +302,11 @@ def queue_json(name=None):
         # Пропущенные звонки
         'abandon': {
             'day': {
-                'value': backend.connection.get_abandon_count(queue=name, period='day'),
+                'value': backend.connection.get_abandon_count(queue=name, period='day', holdtime=False),
                 'avg': backend.connection.get_abandon_avg(queue=name, period='day'),
             },
             'month': {
-                'value': backend.connection.get_abandon_count(queue=name, period='month'),
+                'value': backend.connection.get_abandon_count(queue=name, period='month', holdtime=False),
                 'avg': backend.connection.get_abandon_avg(queue=name, period='month')
             }
         },

@@ -420,7 +420,7 @@ class AsteriskAMI:
         return len(self.get_abandon(queue, period, holdtime))
 
     def get_abandon_avg(self, queue=None, period=None):
-        return self.get_avg('abandon', period, queue=queue)
+        return self.get_avg('abandon', period, queue=queue, holdtime=False)
 
     def get_calls_count(self, queue=None, period=None):
         """
