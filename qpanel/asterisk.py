@@ -418,7 +418,7 @@ class AsteriskAMI:
         answered = self.get_answered_count(queue, period)
         return abandon + answered
 
-    def get_sla_abandon(self, queue=None, period=None, count=0):
+    def get_sla_abandon(self, queue=None, period=None, count=1):
         """
         Подсчет процента пропущенных звонков за period
         period = day
@@ -431,10 +431,13 @@ class AsteriskAMI:
         :param count: количество пропущенных звонков
         :return: SLA для пропущенных звонков
         """
-        result = self.get_abandon_count(queue, period, False) / count * 100
-        return round(result)
+        try:
+            result = self.get_abandon_count(queue, period, False) / count * 100
+            return round(result)
+        except ZeroDivisionError:
+            return round(0)
 
-    def get_sla_answered(self, queue=None, period=None, count=0):
+    def get_sla_answered(self, queue=None, period=None, count=1):
         """
         Подсчет процента звонков, отвеченных после времени ожидания (holdtime) из config.ini за period
         period = day
@@ -447,8 +450,11 @@ class AsteriskAMI:
         :param count: количество отвеченных звонков
         :return: SLA для отвеченных звонков
         """
-        result = self.get_abandon_count(queue, period, -self.config.holdtime) / count * 100
-        return round(result)
+        try:
+            result = self.get_abandon_count(queue, period, -self.config.holdtime) / count * 100
+            return round(result)
+        except ZeroDivisionError:
+            return 0
 
     def get_members(self, members):
         """
