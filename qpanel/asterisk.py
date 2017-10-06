@@ -300,7 +300,7 @@ class AsteriskAMI:
             if not obj_list:
                 return 0
 
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError) as e:
             return 0
 
         # obj_list отсортирован по времени
@@ -402,7 +402,7 @@ class AsteriskAMI:
         :return: Список пропущенных звонков
         """
         start, finish = self.get_period(period)
-        events = ['ABANDON']
+        events = ['ABANDON', 'EXITWITHTIMEOUT']
         # Формируем запрос в базу данных для таблицы QueueLog
         data = queuelog_event_by_range_and_types(
             start, finish, events, queue=queue, order=QueueLog.time.asc()
@@ -413,7 +413,6 @@ class AsteriskAMI:
         if holdtime:
             data.extend(self.get_answered(period=period, holdtime=-self.config.holdtime))
 
-        data = list(filter(lambda x: x.time, data))[::-1]
         return data
 
     def get_abandon_count(self, queue=None, period=None, holdtime=True):
