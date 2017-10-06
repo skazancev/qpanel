@@ -8,16 +8,18 @@ host = localhost
 debug = False
 port = 5000
 host = 0.0.0.0
-interval = 5 ;Interval for request on seconds
+interval = 5 
+;Interval for request on seconds
 ;hide =  ; Hide queue on monitor separate by comma. Example config hide=queue1,queue2
 ;show = ; Add queue what you required to show. Example show=queue1,otherqueuename.
 ;This option override the hide parameter
 ;base_url =  ; Default is /
 ;secret_key = 'PLEASE_CHANGE_ME' ; is a good idea change this value
 language = en
-check_upgrade = True
+check_upgrade = False
 ;freeswitch = True ; Use FreeSWITCH as backend. Use mod_callcenter
-show_service_level = False ; Show information of service level of a queue
+show_service_level = True 
+; Show information of service level of a queue
 context_in = from-trunk
 context_out = from-internal
 show_agents = False
@@ -46,11 +48,11 @@ holdtime = 20
 [reset_stats]
 ;queuename = daily,00:00:00
 
-;[queue_log]
-;database = asterisk
-;table = queue_log
-;host = localhost
-;user = user
-;password = changeme
-;port = 5432
-;adapter = postgres
+[queue_log]
+database = asterisk
+table = queue_log
+host = localhost
+user = user
+password = changeme
+port = 3306
+adapter = mysql
