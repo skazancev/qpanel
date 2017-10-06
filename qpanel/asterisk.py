@@ -331,7 +331,8 @@ class AsteriskAMI:
         """
         members = list(map(self.parse_name, members))
         data = {
-            'members': members
+            'members': members,
+            'dcontext': 'from-internal'
         }
 
         if period:
