@@ -31,7 +31,7 @@ queue_log = Table(cfg.get('queue_log', 'table'), metadata,
                   Column('data5', Text))
 
 cdr_log = Table('cdr', metadata,
-                Column('src', Text),
+                Column('cnum', Text),
                 Column('calldate', DateTime, primary_key=True),
                 Column('disposition', Text),
                 Column('dcontext', Text)
@@ -63,7 +63,7 @@ class CDRLog(DeclarativeBase):
 
     def as_dict(self):
         return {
-            'src': self.cnum,
+            'cnum': self.cnum,
             'time': self.calldate,
             'disposition': self.disposition,
             'dcontext': self.dcontext
@@ -254,7 +254,7 @@ def get_cdr(start=None, finish=None, members=None, dcontext=None):
         q = q.filter(CDRLog.calldate <= finish)
 
     if members:
-        q = q.filter(CDRLog.src.in_(members))
+        q = q.filter(CDRLog.cnum.in_(members))
 
     if dcontext:
         q = q.filter(CDRLog.dcontext == dcontext)
