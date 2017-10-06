@@ -15,7 +15,6 @@ from .database import session_db, metadata, DeclarativeBase
 from . import utils
 from .config import QPanelConfig
 
-
 cfg = QPanelConfig()
 # Class queue_log Table
 queue_log = Table(cfg.get('queue_log', 'table'), metadata,
@@ -31,11 +30,12 @@ queue_log = Table(cfg.get('queue_log', 'table'), metadata,
                   Column('data4', Text),
                   Column('data5', Text))
 
-
 cdr_log = Table('cdr', metadata,
                 Column('src', Text),
                 Column('calldate', DateTime, primary_key=True),
-                Column('disposition', Text))
+                Column('disposition', Text),
+                Column('dcontext', Text)
+                )
 
 
 class QueueLog(DeclarativeBase):
@@ -65,7 +65,8 @@ class CDRLog(DeclarativeBase):
         return {
             'src': self.src,
             'time': self.calldate,
-            'disposition': self.disposition
+            'disposition': self.disposition,
+            'dcontext': self.dcontext
         }
 
 
@@ -206,9 +207,9 @@ def queuelog_exists_record(log):
 
     return session_db.query(
         exists().where(QueueLog.time == log['time']).
-        where(QueueLog.event == log['event']).
-        where(QueueLog.queuename == log['queuename']).
-        where(QueueLog.callid == log['callid'])
+            where(QueueLog.event == log['event']).
+            where(QueueLog.queuename == log['queuename']).
+            where(QueueLog.callid == log['callid'])
     ).scalar()
 
 
@@ -244,7 +245,7 @@ def queuelog_data_queue(from_date, to_date, agent=None, queue=None):
     return data
 
 
-def get_cdr(start=None, finish=None, members=None):
+def get_cdr(start=None, finish=None, members=None, dcontext=None):
     q = session_db.query(CDRLog)
     if start:
         q = q.filter(CDRLog.calldate >= start)
@@ -254,5 +255,8 @@ def get_cdr(start=None, finish=None, members=None):
 
     if members:
         q = q.filter(CDRLog.src.in_(members))
+
+    if dcontext:
+        q = q.filter(CDRLog.dcontext == dcontext)
 
     return q.order_by(CDRLog.calldate.asc()).all()
