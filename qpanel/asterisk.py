@@ -220,29 +220,36 @@ class AsteriskAMI:
 
         # Получаем список каналов с учетом context
         calls = self.get_context_core_channels(context)
+
         if not calls:
             return []
 
         # Если есть очередь, то расширяем список агентов из очереди
         if queues:
             for key, value in queues.items():
-                members.extend(value['members'].keys())
+                members.extend([v['Name'] for i, v in value['members'].items()])
 
         result = []
 
         # Если в списке агентов есть CallerIDNum канала, то добавляем в список результатов
         for call in calls:
-            if call.get('CallerIDNum') in members:
+            if self.get_channel_name(call.get('Channel')) in members:
                 result.append(call)
 
         return result
+
+    def get_channel_name(self, channel):
+        try:
+            return re.findall(r'^[^/]+/([^-]+)', channel.id)[0]
+        except IndexError:
+            return
 
     def get_calls_queue_count(self, queues, context=None):
         """
 
         :return: Количество звонков в очереди
         """
-        return len(self.get_calls_queue(queues, context)) / 2
+        return len(self.get_calls_queue(queues, context))
 
     def get_day_period(self):
         """
