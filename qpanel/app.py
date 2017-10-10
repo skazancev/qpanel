@@ -19,6 +19,7 @@ import qpanel.utils as uqpanel
 
 from qpanel.config import QPanelConfig
 from qpanel.backend import Backend
+from qpanel.database import session_db
 
 if QPanelConfig().has_queuelog_config():
     from qpanel.model import queuelog_data_queue
@@ -297,7 +298,6 @@ def queue_json(name=None):
                 'value': backend.connection.get_answered_count(queue=name, period='month', holdtime=None),
                 'avg': backend.connection.get_answered_avg(queue=name, period='month')
             },
-            'all': backend.connection.get_answered_count(queue=name)
         },
         # Пропущенные звонки
         'abandon': {
@@ -349,6 +349,7 @@ def queue_json(name=None):
             }
         }
     }
+    session_db.rollback()
     return jsonify(**context)
 
 

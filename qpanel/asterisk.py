@@ -30,6 +30,7 @@ class ConnectionErrorAMI(Exception):
 
 config = QPanelConfig()
 
+
 class AsteriskAMI:
 
     def __init__(self, host, port, user, password):
@@ -44,6 +45,9 @@ class AsteriskAMI:
         self.connection = self.connect_ami()
         self.core_channels = None
         self.config = config
+        self.answered = {}
+        self.abandon = {}
+        self.outgoing = {}
 
     def connect_ami(self):
         try:
@@ -161,9 +165,8 @@ class AsteriskAMI:
         """
         :return: Список каналов
         """
-
         # Возвращает self.core_channels если уже был вызван метод CoreShowChannels()
-        if self.core_channels:
+        if self.core_channels is None:
             return self.core_channels
 
         # Вызывает и записывает метод CoreShowChannels в self.core_channels
@@ -339,6 +342,9 @@ class AsteriskAMI:
         :param period: day, month
         :return: Список исходящих звонков для members и period
         """
+        if period in self.outgoing:
+            return self.outgoing[period]
+
         members = list(map(self.parse_name, members))
         data = {
             'members': members,
@@ -351,7 +357,8 @@ class AsteriskAMI:
                 'start': start,
                 'finish': finish
             })
-        return get_cdr(**data)
+        self.outgoing[period] = get_cdr(**data)
+        return self.outgoing[period]
 
     def get_outgoing_avg(self, members, period):
         return self.get_avg('outgoing', period, members=members)
@@ -366,6 +373,9 @@ class AsteriskAMI:
         :param period: day, month
         :return: Список отвеченных звонков
         """
+        if period in self.answered:
+            return self.answered[period]
+
         events = ['CONNECT']
 
         # Получаем нужный нам период, начало и конец
@@ -377,16 +387,19 @@ class AsteriskAMI:
         )
 
         if holdtime is None:
-            return query.all()
+            self.answered[period] = query.all()
+            return self.answered
 
         # Если время ожидания (holdtime) > 0, то фильтруем по полю data1 <= holdtime
         # Иначе, data1 > holdtime
         # Так, мы можем получить список отвеченных звонков либо до времени ожидания, либо после
         # После времени ожидания нужно для подсчета SLA и добавления количества звонков в Пропущенные
         if holdtime > 0:
-            return query.filter(QueueLog.data1 <= holdtime).all()
+            self.answered[period] = query.filter(QueueLog.data1 <= holdtime).all()
         else:
-            return query.filter(QueueLog.data1 > abs(holdtime)).all()
+            self.answered[period] = query.filter(QueueLog.data1 > abs(holdtime)).all()
+
+        return self.answered
 
     def get_answered_count(self, queue=None, period=None, holdtime=config.holdtime):
         return len(self.get_answered(queue, period, holdtime))
@@ -397,10 +410,14 @@ class AsteriskAMI:
     def get_abandon(self, queue=None, period=None, holdtime=True):
         """
         Список пропущенных звонков из таблицы QueueLog
+        :param holdtime: время ожидания
         :param queue: Название очереди
         :param period: day, month
         :return: Список пропущенных звонков
         """
+        if period in self.abandon and holdtime:
+            return self.abandon[period]
+
         start, finish = self.get_period(period)
         events = ['ABANDON', 'EXITWITHTIMEOUT']
         # Формируем запрос в базу данных для таблицы QueueLog
@@ -413,6 +430,7 @@ class AsteriskAMI:
         if holdtime:
             data.extend(self.get_answered(period=period, holdtime=-self.config.holdtime))
 
+        self.abandon[period] = data
         return data
 
     def get_abandon_count(self, queue=None, period=None, holdtime=True):
