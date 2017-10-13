@@ -29,7 +29,7 @@ class ConnectionErrorAMI(Exception):
 
 
 config = QPanelConfig()
-
+cfg = QPanelConfig()
 
 class AsteriskAMI:
 
