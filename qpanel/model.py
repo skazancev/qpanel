@@ -166,7 +166,6 @@ def parse_list_record(list):
         time = int(list[0])
         record['time'] = utils.dt(time)
     except:
-        print(list)
         pass
 
     i = 1
@@ -206,9 +205,9 @@ def queuelog_exists_record(log):
 
     return session_db.query(
         exists().where(QueueLog.time == log['time']).
-        where(QueueLog.event == log['event']).
-        where(QueueLog.queuename == log['queuename']).
-        where(QueueLog.callid == log['callid'])
+            where(QueueLog.event == log['event']).
+            where(QueueLog.queuename == log['queuename']).
+            where(QueueLog.callid == log['callid'])
     ).scalar()
 
 
