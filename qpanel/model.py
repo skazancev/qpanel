@@ -212,10 +212,10 @@ def queuelog_exists_record(log):
     ).scalar()
 
 
-#def queuelog_data_queue(from_date, to_date, agent=None, queue=None):
-#    data = {}
-#    data['answered'] = queuelog_count_answered(from_date, to_date, agent,
-#                                               queue)
+def queuelog_data_queue(from_date, to_date, agent=None, queue=None):
+    data = {}
+    data['answered'] = queuelog_count_answered(from_date, to_date, agent,
+                                               queue)
     data['inbound'] = queuelog_count_inbound(from_date, to_date, agent, queue)
     abandon = queuelog_count_abandon(from_date, to_date, agent, queue)
 
