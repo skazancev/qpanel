@@ -100,7 +100,7 @@ def queuelog_event_by_range_and_types(start_date, end_date, events=None,
 
 
 def queuelog_count_answered(start_date, end_date, agent=None, queue=None):
-    events = ['CONNECT']
+    events = ['CONNECTTT']
     data = queuelog_event_by_range_and_types(start_date, end_date, events,
                                              agent, queue)
     return len(data)
