@@ -29,6 +29,7 @@ if QPanelConfig().has_queuelog_config():
 class User(flask_login.UserMixin):
     pass
 
+
 cfg = QPanelConfig()
 backend = Backend()
 
@@ -54,6 +55,7 @@ def get_user_config_by_name(username):
         return user
     except:
         return None
+
 
 # Flask env
 app = Flask(__name__)
@@ -166,6 +168,7 @@ def utility_processor():
             return gettext('in call')
         else:
             return gettext('busy')
+
     return dict(str_status_agent=str_status_agent)
 
 
@@ -173,6 +176,7 @@ def utility_processor():
 def utility_processor():
     def request_interval():
         return cfg.interval * 1000
+
     return dict(request_interval=request_interval)
 
 
@@ -185,6 +189,7 @@ def page_not_found(e):
 def utility_processor():
     def check_upgrade():
         return cfg.check_upgrade
+
     return dict(check_upgrade=check_upgrade)
 
 
@@ -192,6 +197,7 @@ def utility_processor():
 def utility_processor():
     def show_service_level():
         return cfg.show_service_level
+
     return dict(show_service_level=show_service_level)
 
 
@@ -199,6 +205,7 @@ def utility_processor():
 def utility_processor():
     def has_users():
         return cfg.has_users()
+
     return dict(has_users=has_users)
 
 
@@ -206,6 +213,7 @@ def utility_processor():
 def utility_processor():
     def clean_str_to_div_id(value):
         return uqpanel.clean_str_to_div_id(value)
+
     return dict(clean_str_to_div_id=clean_str_to_div_id)
 
 
@@ -213,6 +221,7 @@ def utility_processor():
 def utility_processor():
     def is_freeswitch():
         return backend.is_freeswitch()
+
     return dict(is_freeswitch=is_freeswitch)
 
 
@@ -220,6 +229,7 @@ def utility_processor():
 def utility_processor():
     def config():
         return cfg
+
     return dict(config=config)
 
 
@@ -227,6 +237,7 @@ def utility_processor():
 def utility_processor():
     def current_version():
         return upgrader.get_current_version()
+
     return dict(current_version=current_version)
 
 
@@ -251,7 +262,6 @@ def home():
 @app.route('/queue/<name>')
 @flask_login.login_required
 def queue(name=None):
-    data = get_data_queues(name)
     template = 'queue.html'
     return render_template(template, **{'name': name})
 
