@@ -289,7 +289,8 @@ def queue_json(name=None):
             },
             'month': {
                 'value': backend.connection.get_answered_count(queue=name, period='month', holdtime=None),
-                'avg': backend.connection.get_answered_avg(queue=name, period='month')
+                'avg': backend.connection.get_answered_avg(queue=name, period='month'),
+                'all': backend.connection.get_answered_count(queue=name)
             },
         },
         # Пропущенные звонки
