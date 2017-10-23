@@ -258,6 +258,3 @@ def get_cdr(start=None, finish=None, members=None, dcontext=None):
         q = q.filter(CDRLog.dcontext == dcontext)
     data = q.order_by(CDRLog.calldate.asc()).all()
     return data
-
-
-'Кирилл, добрый вечер! Я вчера посмотрел что и как работает, на первый взгляд ничего сложно нет, все делается обычными GET запросами и в случае с биткоином, при использовании blockchain.info, он даже присылает коллбэк на указанный url. Сегодня планировали созвониться и обсудить что делать дальше.'
