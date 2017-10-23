@@ -34,9 +34,9 @@ config = QPanelConfig()
 class AsteriskAMI:
 
     def __init__(self, host, port, user, password):
-        '''
+        """
         Initialise a class for Asterisk
-        '''
+        """
         self.host = host
         self.port = int(port)
         self.password = password
@@ -388,7 +388,7 @@ class AsteriskAMI:
 
         if holdtime is None:
             self.answered[period] = query.all()
-            return self.answered
+            return self.answered[period]
 
         # Если время ожидания (holdtime) > 0, то фильтруем по полю data1 <= holdtime
         # Иначе, data1 > holdtime
