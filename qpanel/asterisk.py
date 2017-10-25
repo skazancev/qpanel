@@ -49,6 +49,9 @@ class AsteriskAMI:
         self.abandon = {}
         self.outgoing = {}
 
+    def flush(self):
+        self.answered, self.abandon, self.outgoing = {}, {}, {}
+
     def connect_ami(self):
         try:
             manager = Manager((self.host, self.port), self.user, self.password)
@@ -373,7 +376,7 @@ class AsteriskAMI:
         :param period: day, month
         :return: Список отвеченных звонков
         """
-        if period in self.answered:
+        if period and period in self.answered:
             return self.answered[period]
 
         events = ['CONNECT']
@@ -399,7 +402,7 @@ class AsteriskAMI:
         else:
             self.answered[period] = query.filter(QueueLog.data1 > abs(holdtime)).all()
 
-        return self.answered
+        return self.answered[period]
 
     def get_answered_count(self, queue=None, period=None, holdtime=config.holdtime):
         return len(self.get_answered(queue, period, holdtime))

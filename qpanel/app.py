@@ -281,6 +281,7 @@ def all_queues():
 @flask_login.login_required
 def queue_json(name=None):
     data = get_data_queues(name)
+    backend.connection.flush()
     members = data['members']
     calls_count = backend.connection.get_calls_count()
     busy, free, unavailable = backend.connection.get_members(members)
