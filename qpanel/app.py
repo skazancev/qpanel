@@ -6,6 +6,7 @@
 
 from flask import Flask, render_template, jsonify, redirect, \
     request, session, url_for
+from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.serving import run_simple
 from werkzeug.wsgi import DispatcherMiddleware
 from werkzeug.exceptions import abort
@@ -479,6 +480,8 @@ def main():
     if cfg.is_debug:
         app.config['DEBUG'] = True
         uqpanel.add_debug_toolbar(app)
+    else:
+        app.wsgi_app = ProxyFix(app.wsgi_app)
 
     if cfg.queues_for_reset_stats():
         if job.check_connect_redis():
