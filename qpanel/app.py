@@ -284,7 +284,7 @@ def queue_json(name=None):
     data = get_data_queues(name)
     backend.connection.flush()
     members = data['members']
-    calls_count = backend.connection.get_calls_count()
+    calls_count = backend.connection.get_calls_count(queue=name)
     busy, free, unavailable = backend.connection.get_members(members)
     context = {
         'name': name,

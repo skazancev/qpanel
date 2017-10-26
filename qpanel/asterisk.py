@@ -369,14 +369,14 @@ class AsteriskAMI:
     def get_outgoing_count(self, members, period):
         return len(self.get_outgoing(members, period))
 
-    def get_answered(self, queue=None, period=None, holdtime=config.holdtime):
+    def get_answered(self, queue=None, period=None, holdtime=config.holdtime, query=True):
         """
         Список отвеченных звонков из таблицы QueueLog
         :param queue: Название очереди
         :param period: day, month
         :return: Список отвеченных звонков
         """
-        if period and period in self.answered:
+        if period and period in self.answered and query:
             return self.answered[period]
 
         events = ['CONNECT']
@@ -407,18 +407,19 @@ class AsteriskAMI:
     def get_answered_count(self, queue=None, period=None, holdtime=config.holdtime):
         return len(self.get_answered(queue, period, holdtime))
 
-    def get_answered_avg(self, queue=None, period=None, holdtime=None):
-        return self.get_avg('answered', period, queue=queue, holdtime=holdtime)
+    def get_answered_avg(self, queue=None, period=None, holdtime=None, query=True):
+        return self.get_avg('answered', period, queue=queue, holdtime=holdtime, query=query)
 
-    def get_abandon(self, queue=None, period=None, holdtime=True):
+    def get_abandon(self, queue=None, period=None, holdtime=True, query=True, write=True):
         """
         Список пропущенных звонков из таблицы QueueLog
+        :param query: Делать ли повторный запрос
         :param holdtime: время ожидания
         :param queue: Название очереди
         :param period: day, month
         :return: Список пропущенных звонков
         """
-        if period in self.abandon and holdtime:
+        if period in self.abandon and query:
             return self.abandon[period]
 
         start, finish = self.get_period(period)
@@ -431,13 +432,15 @@ class AsteriskAMI:
         # Если есть время ожидания (holdtime), то прибавляем к списку пропущенных
         # звонков список отвеченных после времени ожидания
         if holdtime:
-            data.extend(self.get_answered(period=period, holdtime=-self.config.holdtime))
+            data.extend(self.get_answered(period=period, holdtime=-self.config.holdtime, query=query))
 
-        self.abandon[period] = data
+        if write:
+            self.abandon[period] = data
+
         return data
 
-    def get_abandon_count(self, queue=None, period=None, holdtime=True):
-        return len(self.get_abandon(queue, period, holdtime))
+    def get_abandon_count(self, queue=None, period=None, holdtime=True, query=True, write=True):
+        return len(self.get_abandon(queue, period, holdtime, query, write))
 
     def get_abandon_avg(self, queue=None, period=None):
         return self.get_avg('abandon', period, queue=queue, holdtime=False)
@@ -448,7 +451,7 @@ class AsteriskAMI:
         :param period: day, month
         :return: Общее количество звонков за period
         """
-        abandon = self.get_abandon_count(queue, period)
+        abandon = self.get_abandon_count(queue, period, write=False)
         answered = self.get_answered_count(queue, period)
         return abandon + answered
 
@@ -466,7 +469,7 @@ class AsteriskAMI:
         :return: SLA для пропущенных звонков
         """
         try:
-            result = self.get_abandon_count(queue, period, False) / count * 100
+            result = self.get_abandon_count(queue, period, False, False) / count * 100
             return round(result)
         except ZeroDivisionError:
             return round(0)
@@ -485,7 +488,7 @@ class AsteriskAMI:
         :return: SLA для отвеченных звонков
         """
         try:
-            result = self.get_abandon_count(queue, period, -self.config.holdtime) / count * 100
+            result = self.get_abandon_count(queue, period, -self.config.holdtime, False) / count * 100
             return round(result)
         except ZeroDivisionError:
             return 0
