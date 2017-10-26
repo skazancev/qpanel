@@ -377,6 +377,7 @@ class AsteriskAMI:
         :return: Список отвеченных звонков
         """
         if period and period in self.answered and query:
+            print(period, holdtime)
             return self.answered[period]
 
         events = ['CONNECT']
@@ -451,8 +452,8 @@ class AsteriskAMI:
         :param period: day, month
         :return: Общее количество звонков за period
         """
-        abandon = self.get_abandon_count(queue, period, write=False)
-        answered = self.get_answered_count(queue, period)
+        abandon = self.get_abandon_count(queue, period, write=False, holdtime=False)
+        answered = self.get_answered_count(queue, period, holdtime=False)
         return abandon + answered
 
     def get_sla_abandon(self, queue=None, period=None, count=1):
